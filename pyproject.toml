@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "energy-efficiency-predictor"
+version = "0.1.0"
+description = "A machine learning project focused on prediction heating & cooling loads of buildings simulated by Ecotect."
+authors = ["Prince Foli Acouetey"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+scikit-learn = "^1.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
