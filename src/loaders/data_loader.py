@@ -47,7 +47,5 @@ def load_energy_efficiency_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
         logging.info("Energy Efficiency dataset loaded successfully.")
 
         return features_df, targets_df
-
-    else:
-        logging.error("Failed to load Energy Efficiency dataset...")
-        return pd.DataFrame(), pd.DataFrame()
+    logging.error("Failed to load Energy Efficiency dataset...")
+    return pd.DataFrame(), pd.DataFrame()

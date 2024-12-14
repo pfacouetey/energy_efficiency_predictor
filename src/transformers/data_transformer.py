@@ -64,7 +64,5 @@ def transform_energy_efficiency_dataset(
             }
         }
         return data_dict
-
-    else:
-        logging.error("At least one of the input dataFrames is empty ...")
-        return None
+    logging.error("At least one of the input dataFrames is empty ...")
+    return None
