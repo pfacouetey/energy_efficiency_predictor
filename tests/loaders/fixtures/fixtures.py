@@ -3,7 +3,7 @@ import pandas as pd
 
 
 @pytest.fixture()
-def df_expected_features_means():
+def expected_features_means_df():
     return pd.DataFrame(
         {
             'Relative_Compactness': 0.76,
@@ -19,7 +19,7 @@ def df_expected_features_means():
     )
 
 @pytest.fixture()
-def df_expected_targets_means():
+def expected_targets_means_df():
     return pd.DataFrame(
         {
             'Heating_Load': 22.31,
@@ -29,7 +29,7 @@ def df_expected_targets_means():
     )
 
 @pytest.fixture()
-def df_expected_features_variances():
+def expected_features_variances_df():
     return pd.DataFrame(
         {
             'Relative_Compactness': 0.01,
@@ -45,7 +45,7 @@ def df_expected_features_variances():
     )
 
 @pytest.fixture()
-def df_expected_targets_variances():
+def expected_targets_variances_df():
     return pd.DataFrame(
         {
             'Heating_Load': 101.81,
