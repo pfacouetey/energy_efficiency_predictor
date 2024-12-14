@@ -25,9 +25,9 @@ def test_transform_energy_efficiency_dataset(
     actual_scaled_val_features_means_df = scaled_val_features_df.mean().to_frame().T.apply(lambda x: np.floor(np.abs(x)))
 
     # Calculate actual variances for train, test, and validation sets
-    actual_scaled_train_features_variances_df = scaled_train_features_df.var().to_frame().T.apply(lambda x: np.round(x))
-    actual_scaled_test_features_variances_df = scaled_test_features_df.var().to_frame().T.apply(lambda x: np.round(x))
-    actual_scaled_val_features_variances_df = scaled_val_features_df.var().to_frame().T.apply(lambda x: np.round(x))
+    actual_scaled_train_features_variances_df = scaled_train_features_df.var().to_frame().T.apply(np.round)
+    actual_scaled_test_features_variances_df = scaled_test_features_df.var().to_frame().T.apply(np.round)
+    actual_scaled_val_features_variances_df = scaled_val_features_df.var().to_frame().T.apply(np.round)
 
     # Compare DataFrames
     tol_float = 1e-06  # Tolerance for floating point comparison
