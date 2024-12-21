@@ -31,7 +31,7 @@ def transform_energy_efficiency_dataset(
         train_features_df, test_val_features_df, train_targets_df, test_val_targets_df = train_test_split(
             features_df,
             targets_df,
-            test_size=0.4,
+            test_size=0.35,
             random_state=123,
         )
         test_features_df, val_features_df, test_targets_df, val_targets_df = train_test_split(

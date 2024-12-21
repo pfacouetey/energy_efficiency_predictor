@@ -9,7 +9,7 @@ from sklearn.linear_model import LinearRegression
 def pca_regression(
         features_df: pd.DataFrame,
         targets_df: pd.DataFrame,
-        operation_mode: Literal["train", "validate"] = "train",
+        operation_mode: Literal["train", "validate/test"] = "train",
         n_components: int = None,
         prediction_models: dict[str, object] = None,
 ) -> dict[str, object] | None:
@@ -54,7 +54,7 @@ def pca_regression(
             return models_dict
 
         elif (
-                operation_mode == "validate" and n_components is not None and prediction_models is not None and (
+                operation_mode == "validate/test" and n_components is not None and prediction_models is not None and (
                 not targets_df.empty)
         ):
             logging.info("Performing PCA on dataset...")
