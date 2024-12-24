@@ -1,0 +1,5 @@
+[core]
+    remote = myremote1
+['remote "myremote1"']
+    url = s3://energy-efficiency-predictor
+    profile = dvc
