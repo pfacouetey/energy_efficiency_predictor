@@ -5,23 +5,27 @@ from ucimlrepo import fetch_ucirepo
 
 def load_energy_efficiency_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load the Energy Efficiency dataset from the UCI Machine Learning Repository, separate
-    its covariates and targets, and return them as two distinct dataframes. The dataset
-    consists of features related to various architectural properties alongside heating
-    and cooling load targets. Column names for both features and targets are reformatted
-    for better clarity. Logs status of dataset loading and processing operations.
+    Load the Energy Efficiency dataset.
 
-    :return: A tuple containing two pandas DataFrames: the cleaned features dataframe and
-        the cleaned targets dataframe. If the dataset is unavailable or empty, returns
-        two empty dataframes.
-    :rtype: tuple[pd.DataFrame, pd.DataFrame]
+    This function fetches the Energy Efficiency dataset using the `fetch_ucirepo`
+    utility, processes it to separate features (covariates) from targets, and then
+    renames columns for better readability. The dataset contains information about
+    various building properties and their corresponding energy efficiency measures.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame]
+        - The first DataFrame contains the features (covariates) with columns:
+          'Relative_Compactness', 'Surface_Area', 'Wall_Area', 'Roof_Area',
+          'Overall_Height', 'Orientation', 'Glazing_Area',
+          'Glazing_Area_Distribution'.
+        - The second DataFrame contains the targets with columns: 'Heating_Load',
+          'Cooling_Load'.
     """
     logging.info("Loading Energy Efficiency dataset...")
 
-    # Fetch the dataset from the UCI Machine Learning Repository
     energy_efficiency_df = fetch_ucirepo(id=242)
 
-    # Separate features and targets when fetching is successful and the dataset is not empty.
     if not energy_efficiency_df.empty:
         logging.info("Separating covariates from target...")
         features_df = energy_efficiency_df.data.features
@@ -45,7 +49,7 @@ def load_energy_efficiency_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
             },
         ).map(float)
         logging.info("Energy Efficiency dataset loaded successfully.")
-
         return features_df, targets_df
+
     logging.error("Failed to load Energy Efficiency dataset...")
     return pd.DataFrame(), pd.DataFrame()
