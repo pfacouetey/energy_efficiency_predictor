@@ -268,7 +268,7 @@ def elasticnet_pca_regressor(
         logging.info("Experiment completed successfully.")
         return best_run
 
-    elif operation_mode == "test":
+    if operation_mode == "test":
 
         if best_run["n_components"] is None:
             logging.error("PCA components count is not provided in the best run...")
