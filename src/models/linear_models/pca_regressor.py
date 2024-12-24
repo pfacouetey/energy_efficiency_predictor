@@ -200,7 +200,7 @@ def pca_regressor(
         results["n_components"] = pca_features_df.shape[1]
         return results
 
-    elif operation_mode == "test" and prediction_models is not None:
+    if operation_mode == "test" and prediction_models is not None:
 
         if prediction_models["n_components"] is None:
             logging.error("PCA components count is not provided in the prediction models...")
