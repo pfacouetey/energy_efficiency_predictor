@@ -1,4 +1,4 @@
-# Energy Efficiency Predictor
+# energy_efficiency_predictor
 This project aims to use machine learning regression models to predict energy efficiency metrics for buildings based on input features such as building characteristics and environmental factors. 
 
 The project uses machine learning techniques, data preprocessing, and MLflow for model tracking and experiment management.
