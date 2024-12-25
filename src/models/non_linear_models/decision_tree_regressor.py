@@ -4,43 +4,44 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import Literal
-from mlflow import MlflowException
-from sklearn.decomposition import PCA
 from mlflow.models import infer_signature
-from sklearn.linear_model import ElasticNet
+from mlflow.exceptions import MlflowException
+from sklearn.tree import DecisionTreeRegressor
 from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import cross_validate, KFold
 
 SEED = 123
-DEFAULT_MAX_EVALS = 30
-N_COMPONENTS = 0.9
-ELASTICNET_HYPERPARAMETERS = {
-    "alpha": hp.loguniform("alpha", np.log(0.01), np.log(100.0)),
-    "l1_ratio": hp.uniform("l1_ratio", 0.001, 1.0),
+DEFAULT_MAX_EVALS = 50
+DECISIONTREE_HYPERPARAMETERS = {
+    "criterion": hp.choice("criterion", ["squared_error", "friedman_mse", "absolute_error"]),
+    "splitter": hp.choice("splitter", ["best", "random"]),
+    "min_samples_split": hp.quniform("min_samples_split", 6, 20, 1),
+    "max_depth": hp.quniform("max_depth", 3, 10, 1),
+    "min_samples_leaf": hp.quniform("min_samples_leaf", 1, 10, 1),
+    "max_features": hp.uniform("max_features", 0.1, 1.0),
+    "ccp_alpha": hp.uniform("ccp_alpha", 0.0, 0.5),
 }
 
 np.random.seed(SEED)
 random.seed(SEED)
 
-class CustomElasticNet(ElasticNet):
-    """
-    A custom implementation of the ElasticNet regression model.
 
-    This subclass of ElasticNet is designed to enhance the
-    base functionality by retaining the training data for
-    further analysis or processing. It overrides the `fit`
-    method from the ElasticNet class to store the input
-    features and target values as attributes of the model.
+class CustomDecisionTreeRegressor(DecisionTreeRegressor):
+    """
+    Custom decision tree regressor that extends the functionality of the
+    base DecisionTreeRegressor by storing the training data.
+
+    This regressor behaves similarly to the standard DecisionTreeRegressor
+    but retains the training data in object properties for any custom
+    post-fit operations or analyses.
 
     Attributes
     ----------
     X_train : array-like of shape (n_samples, n_features)
-        The training input samples. This attribute stores the
-        feature matrix passed to the `fit` method.
+        Training feature set used during the fit process.
     y_train : array-like of shape (n_samples,)
-        The target values. This attribute stores the target
-        vector passed to the `fit` method.
+        Training target values corresponding to the training feature set.
     """
     def fit(self, X, y, **kwargs):
         self.X_train = X
@@ -49,39 +50,32 @@ class CustomElasticNet(ElasticNet):
 
 def custom_scorer(estimator, X, y):
     """
-    Evaluates the performance of a given estimator on both validation and training data
-    using custom scoring metrics. The function calculates the minimum coefficient of
-    determination (R^2) and the maximum mean squared error (MSE) for multi-output
-    predictions. It ensures the custom estimator meets the required type.
+    Calculates performance metrics for a given estimator on both training and
+    validation datasets. The function evaluates the estimator's performance
+    by computing the minimum R^2 score and the maximum mean squared error
+    across all output variables, for the validation and training datasets.
 
     Parameters
     ----------
-    estimator : CustomElasticNet
-        The estimator whose performance is to be evaluated. Must be an instance of
-        the CustomElasticNet class and contain `X_train` and `y_train` attributes for
-        training data.
+    estimator : CustomDecisionTreeRegressor
+        The fitted estimator whose performance metrics are to be calculated.
+        Must be an instance of CustomDecisionTreeRegressor.
     X : array-like of shape (n_samples, n_features)
-        Validation feature dataset.
+        The input features for the validation dataset.
     y : array-like of shape (n_samples,) or (n_samples, n_outputs)
-        True target values for the validation dataset.
+        The target values for the validation dataset.
 
     Returns
     -------
     dict
         A dictionary containing the following keys:
-        - "val_r2": Minimum R^2 score from validation predictions.
-        - "val_mse": Maximum MSE from validation predictions.
-        - "train_r2": Minimum R^2 score from training predictions.
-        - "train_mse": Maximum MSE from training predictions.
-
-    Raises
-    ------
-    ValueError
-        If the provided estimator is not an instance of the CustomElasticNet class.
+        - "val_r2": Minimum R^2 score for the validation dataset.
+        - "val_mse": Maximum mean squared error for the validation dataset.
+        - "train_r2": Minimum R^2 score for the training dataset.
+        - "train_mse": Maximum mean squared error for the training dataset.
     """
-
-    if not isinstance(estimator, CustomElasticNet):
-        raise ValueError("Estimator must be an instance of CustomElasticNet ...")
+    if not isinstance(estimator, CustomDecisionTreeRegressor):
+        raise ValueError("Estimator must be an instance of CustomDecisionTreeRegressor ...")
 
     y_val_pred = estimator.predict(X)
     val_r2 = np.min(
@@ -112,63 +106,68 @@ def train_model(
         hyperparameters: dict[str, float],
 ) -> dict[str, object] | None:
     """
-    Train a linear regression model with PCA feature transformation and evaluate
-    its performance using cross-validation. The method utilizes Ridge and Lasso
-    regularization via a custom ElasticNet model, internally logging metrics and
-    the trained model using MLflow.
+    Train a decision tree model using cross-validation and log results.
+
+    This function trains a decision tree regressor using provided feature and target datasets
+    along with specified hyperparameters. It leverages cross-validation to compute evaluation
+    metrics and logs the model and associated data using MLflow. The function returns detailed
+    training results, including performance metrics, the fitted model, feature importance, and
+    MLflow signature.
 
     Parameters
     ----------
-    features_df : pd.DataFrame
-        The input DataFrame containing the features for training. Each row
-        represents a sample, and each column represents a feature.
+    features_df : pandas.DataFrame
+        A DataFrame containing the input features for model training. Each row represents
+        an instance, and each column represents a feature.
 
-    targets_df : pd.DataFrame
-        The target DataFrame containing the outputs corresponding to the input
-        features. It should have the same number of rows as `features_df`.
+    targets_df : pandas.DataFrame
+        A DataFrame containing the target variable(s) corresponding to the features provided.
+        Each row corresponds to the target for the respective instance in the input data.
 
     hyperparameters : dict[str, float]
-        The dictionary of hyperparameter values to configure the custom ElasticNet
-        model. Keys represent the names of hyperparameters and values represent
-        their corresponding numeric values.
+        Dictionary containing hyperparameters for the decision tree model. It must include:
+        - "min_samples_split": Minimum number of samples required to split an internal node.
+        - "min_samples_leaf": Minimum number of samples required to be at a leaf node.
+        - "max_depth": Maximum depth of the tree.
 
     Returns
     -------
     dict[str, object] or None
-        A dictionary containing model results and evaluation metrics if training
-        and validation are successful. The keys include:
+        A dictionary is returned containing the following keys if the training succeeds:
+        - "loss" : float
+            Validation mean squared error score.
+        - "val_mse_score" : float
+            Mean squared error score on validation data from cross-validation.
+        - "val_r2_score" : float
+            R-squared (coefficient of determination) score for validation data.
+        - "train_mse_score" : float
+            Mean squared error score on training data from cross-validation.
+        - "train_r2_score" : float
+            R-squared (coefficient of determination) score for training data.
+        - "status" : str
+            Status indicating the training result, typically the value of `STATUS_OK`.
+        - "model" : CustomDecisionTreeRegressor
+            The trained decision tree model.
+        - "features_importance" : pandas.DataFrame
+            A DataFrame with feature names and their corresponding importance scores.
+        - "signature" : mlflow.models.signature.ModelSignature
+            Signature of the model created using the `infer_signature` function.
 
-        - "loss": Mean squared error score on the validation set.
-        - "val_mse_score": Averaged validation mean squared error.
-        - "val_r2_score": Averaged validation R-squared score.
-        - "train_mse_score": Averaged training mean squared error.
-        - "train_r2_score": Averaged training R-squared score.
-        - "status": Status indicating the completion of the process.
-        - "model": Trained instance of the custom ElasticNet model.
-        - "signature": Inferred MLflow model signature.
-        - "n_components": Number of PCA components used in feature transformation.
-
-        If either `features_df` or `targets_df` is empty during input validation,
-        the function logs an error and returns None.
+        Returns None if either `features_df` or `targets_df` is empty.
     """
-
     if features_df.empty or targets_df.empty:
         logging.error("At least one of the input dataframes is empty...")
         return None
 
-    model = CustomElasticNet(**hyperparameters, random_state=SEED)
+    hyperparameters["min_samples_split"] = int(hyperparameters["min_samples_split"])
+    hyperparameters["min_samples_leaf"] = int(hyperparameters["min_samples_leaf"])
+    hyperparameters["max_depth"] = int(hyperparameters["max_depth"])
+
+    model = CustomDecisionTreeRegressor(**hyperparameters, random_state=SEED)
 
     with mlflow.start_run(nested=True):
 
-        logging.info("Performing PCA on dataset...")
-        pca_features_array = PCA(n_components=N_COMPONENTS).fit_transform(features_df)
-        pca_features_df = pd.DataFrame(
-            data=pca_features_array,
-            columns=[f"PC{i + 1}" for i in range(pca_features_array.shape[1])],
-        )
-        logging.info("PCA completed successfully.")
-
-        logging.info("Started training of a linear regression model with Ridge and Lasso regularization...")
+        logging.info("Started training of a decision tree...")
         cv = KFold(
             n_splits=5,
             random_state=SEED,
@@ -176,21 +175,23 @@ def train_model(
         )
         scores = cross_validate(
             estimator=model,
-            X=pca_features_df,
+            X=features_df,
             y=targets_df,
             scoring=custom_scorer,
             cv=cv,
             n_jobs=-1,
             return_train_score=True,
         )
+        model_fitted = model.fit(features_df, targets_df)
         results = {
-            "model": model.fit(pca_features_df, targets_df),
-            "signature" : infer_signature(model_input=pca_features_df, model_output=targets_df),
+            "model": model_fitted,
+            "signature" : infer_signature(model_input=features_df, model_output=targets_df),
             "scores": scores,
             "val_r2_score": np.mean(scores["test_val_r2"]),
             "val_mse_score": np.mean(scores["test_val_mse"]),
             "train_r2_score": np.mean(scores["train_train_r2"]),
             "train_mse_score": np.mean(scores["train_train_mse"]),
+            "features_importance": model_fitted.feature_importances_,
         }
         logging.info("Training completed successfully.")
 
@@ -211,8 +212,13 @@ def train_model(
             "train_r2_score": results["train_r2_score"],
             "status": STATUS_OK,
             "model": results["model"],
+            "features_importance": pd.DataFrame(
+                {
+                    "feature": features_df.columns,
+                    "importance": results["features_importance"],
+                }
+            ),
             "signature": results["signature"],
-            "n_components": int(pca_features_df.shape[1]),
         }
 
 def set_or_create_experiment(
@@ -264,7 +270,7 @@ def set_or_create_experiment(
         print(f"An error occurred while handling the experiment: {e}")
         raise
 
-def elasticnet_pca_regressor(
+def decisiontree_regressor(
         features_df: pd.DataFrame = None,
         targets_df: pd.DataFrame = None,
         operation_mode: Literal["train", "test"] = "train",
@@ -272,48 +278,43 @@ def elasticnet_pca_regressor(
         experiment_name: str = None,
 ) -> dict[str, object]|None:
     """
-    ElasticNet PCA Regressor.
+    Trains or tests a DecisionTree regressor model based on the provided operation mode.
 
-    This function implements a pipeline for training and testing a regression model
-    that uses ElasticNet regularization combined with Principal Component Analysis (PCA).
-    The function supports two operation modes: "train" for hyperparameter tuning
-    and model training, and "test" for leveraging the best trained model to make
-    predictions on a test dataset. During the training, hyperparameters are
-    optimized using a Bayesian optimization approach.
+    This function is designed to handle both training and testing workflows for a DecisionTree
+    regressor. In training mode, the function performs hyperparameter tuning using Bayesian
+    optimization and logs the best model to an experiment. In testing mode, predictions
+    are generated using the provided model from the best run, and evaluation metrics are
+    computed.
 
     Parameters
     ----------
     features_df : pd.DataFrame, optional
-        DataFrame containing the feature set to be utilized for training or testing.
-        Each row corresponds to an observation, while columns represent individual features.
-
+        Input features for training or testing the model. If empty, the function will log
+        an error and return None.
     targets_df : pd.DataFrame, optional
-        DataFrame containing the target values. Each row corresponds to the
-        target value of the respective observation in `features_df`.
-
-    operation_mode : Literal["train", "test"], default="train"
-        Specifies the operation mode of the function:
-        - "train": Conducts hyperparameter tuning, trains the ElasticNet model,
-          and logs the best model to a tracking server.
-        - "test": Uses the best trained model and parameters to make predictions
-          on the test dataset.
-
+        Target values corresponding to the features. If empty, the function will log an
+        error and return None.
+    operation_mode : {'train', 'test'}, default='train'
+        Specifies the operation mode. 'train' for training the model, 'test' for evaluating
+        an already trained model.
     best_run : dict[str, object], optional
-        A dictionary containing the best results obtained from training,
-        including the trained model and PCA components, required for the "test" mode.
-
+        Dictionary containing information about the best run, including the trained model.
+        This is used during testing mode. When in 'test' mode, the function will log an
+        error and return None if `best_run` or the `model` within `best_run` is not
+        provided.
     experiment_name : str, optional
-        The name of the experiment, crucial in "train" mode for logging and tracking
-        the hyperparameter optimization process and training progress.
+        Name of the MLflow experiment under which the model and metrics will be logged
+        during training. If not provided in 'train' mode, the function will log an error
+        and return None.
 
     Returns
     -------
     dict[str, object] or None
-        - In "train" mode: Returns a dictionary containing the best hyperparameters,
-          trained model, performance metrics, and metadata for the ElasticNet model.
-        - In "test" mode: Returns a dictionary with evaluation metrics (`mse_score`,
-          `r2_score`) calculated on the test dataset.
-        - Returns None if invalid inputs or conditions are encountered.
+        In 'train' mode, the function returns a dictionary containing the results of the
+        best run, including hyperparameters, metrics, and the trained model. In 'test'
+        mode, it returns a dictionary containing the evaluation metrics calculated on the
+        test set. Returns None if an error occurs (e.g., missing input data, empty
+        DataFrame, or invalid operation mode).
     """
 
     if features_df.empty or targets_df.empty:
@@ -326,23 +327,25 @@ def elasticnet_pca_regressor(
             logging.error("Experiment name is required for training mode...")
             return None
 
-        logging.info("Defining objective function for hyperparameter tuning of ElasticNet...")
+        logging.info("Defining objective function for hyperparameter tuning of DecisionTree...")
+
         def objective_function(hyperparameters: dict[str, float]) -> dict[str, float]:
             return train_model(
                 features_df=features_df,
                 targets_df=targets_df,
                 hyperparameters=hyperparameters,
             )
+
         logging.info("Objective function defined successfully.")
 
-        logging.info(f"Started hyperparameter tuning for ElasticNet using {experiment_name}...")
+        logging.info(f"Started hyperparameter tuning for DecisionTree using {experiment_name}...")
         logging.info("Number of evaluations: {}".format(DEFAULT_MAX_EVALS))
         set_or_create_experiment(experiment_name=experiment_name)
         with mlflow.start_run():
             trials = Trials()
             best_hyperparameters = fmin(
                 fn=objective_function,
-                space=ELASTICNET_HYPERPARAMETERS,
+                space=DECISIONTREE_HYPERPARAMETERS,
                 algo=tpe.suggest,
                 max_evals=DEFAULT_MAX_EVALS,
                 trials=trials,
@@ -366,25 +369,13 @@ def elasticnet_pca_regressor(
 
     if operation_mode == "test":
 
-        if best_run["n_components"] is None:
-            logging.error("PCA components count is not provided in the best run...")
-            return None
-
-        logging.info("Performing PCA on dataset...")
-        pca_features_array = PCA(n_components=best_run["n_components"]).fit_transform(features_df)
-        pca_features_df = pd.DataFrame(
-            data=pca_features_array,
-            columns=[f"PC{i + 1}" for i in range(pca_features_array.shape[1])],
-        )
-        logging.info("PCA completed successfully.")
-
         if best_run["model"] is None:
             logging.error("Model is not provided in the best run...")
             return None
 
         logging.info("Performing predictions on test set...")
         model = best_run["model"]
-        pred_targets_array = model.predict(pca_features_df)
+        pred_targets_array = model.predict(features_df)
         results = {
             "mse_score": np.max(
                 mean_squared_error(y_true=targets_df, y_pred=pred_targets_array, multioutput="raw_values")
