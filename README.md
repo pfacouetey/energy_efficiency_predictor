@@ -47,7 +47,7 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
     `cd energy_efficiency_predictor`
 
 
-2. Install **Poetry** if not already installed:
+2. Install poetry if not already installed:
 
     `pip install poetry`
 
