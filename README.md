@@ -62,7 +62,7 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
 
     `pip install poetry`
 
-3. Install dependencies using Poetry:
+3. Install project dependencies in the newly created virtual environment `venv` using `poetry`:
 
     `poetry install`
 
