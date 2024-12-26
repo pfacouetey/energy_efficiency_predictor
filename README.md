@@ -64,7 +64,7 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
 
 3. Install project dependencies in the newly created virtual environment `venv` using `poetry`:
 
-    `poetry install`
+    `poetry install --no-root`
 
 Feel free to create your virtual envrionment using your own ways, activate it, install `poetry` in it, then use `poetry` to instqll in it the necessary packages.
 
