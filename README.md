@@ -54,13 +54,11 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
 
 4. Activate the newly created virtual environment `venv`:
     
-   - For Windows users
-         - with Powershell : `venv\Scripts\Activate.ps1`
-         - with Command Prompt :  `venv\Scripts\activate.bat`
+   - For Windows users : `venv\Scripts\Activate.ps1` (with Powershell) or `venv\Scripts\activate.bat` (with Command Prompt)
 
    - For Mac or Linux users : `source venv/bin/activate`
    
-2. Install poetry in the newly created virtual environment `venv`:
+2. Install `poetry` in the newly created virtual environment `venv`:
 
     `pip install poetry`
 
