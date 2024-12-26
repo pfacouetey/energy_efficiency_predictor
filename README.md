@@ -86,7 +86,7 @@ The data folder has been created to track any change on the dataset done by [UC 
 - Compare performance with additional machine learning models (e.g., Random Forest, Gradient Boosting), and even test some deep learning models.
 
 ## License
-This project is licensed under the terms of the MIT license. For any further details, consult the `LICENSE` file.
+This project is registered under the terms of the MIT license. For any further details, consult the `LICENSE` file.
 
 ## Contributing
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
