@@ -33,7 +33,7 @@ Tasks include:
 ## Technologies Used
 - Python (3.12.8)
 - Key Libraries:
-    - **scikit-learn**: For building decision tree models and evaluation.
+    - **scikit-learn**: For building machine learning models and evaluate them.
     - **pandas/numpy**: Data handling and numerical computations.
     - **MLflow**: Experiment tracking and model management.
     - **seaborn/matplotlib**: For visualizing model results.
