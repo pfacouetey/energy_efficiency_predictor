@@ -46,20 +46,29 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
 
     `cd energy_efficiency_predictor`
 
+2. Create a virtual environment `venv`:
 
-2. Install poetry if not already installed:
+   - For Windows users : `python -m venv venv`
+
+   - For Mac or Linux users : `python3 -m venv venv`
+
+4. Activate the newly created virtual environment `venv`:
+    
+   - For Windows users
+         - with Powershell : `venv\Scripts\Activate.ps1`
+         - with Command Prompt :  `venv\Scripts\activate.bat`
+
+   - For Mac or Linux users : `source venv/bin/activate`
+   
+2. Install poetry in the newly created virtual environment `venv`:
 
     `pip install poetry`
-
 
 3. Install dependencies using Poetry:
 
     `poetry install`
 
-
-4. Activate the virtual environment managed by Poetry:
-
-    `poetry shell`
+Feel free to create your virtual envrionment using your own ways, activate it, install `poetry` in it, then use `poetry` to instqll in it the necessary packages.
 
 With Poetry, your dependencies are locked in the `poetry.lock` file, ensuring consistency across environments.
 Let me know if you'd like me to enrich this README further or include any other project-specific details!
