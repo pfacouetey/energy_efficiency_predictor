@@ -18,6 +18,16 @@ dvc-s3 = "^3.2.0"
 pytest-cov = "^6.0.0"
 
 
+[tool.poetry.group.dev.dependencies]
+python-semantic-release = "^9.15.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.semantic_release]
+version_toml = [
+    "pyproject.toml:tool.poetry.version",
+]
+branch = "main"
+changelog_file = "CHANGELOG.md"
