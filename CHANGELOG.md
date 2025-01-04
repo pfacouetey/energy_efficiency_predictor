@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.2 (2025-01-04)
+
+### Bug Fixes
+
+- **numpy**: Fix numpy version to resolve some conflicts
+  ([`89de6a9`](https://github.com/pfacouetey/energy_efficiency_predictor/commit/89de6a943d3eaf75416d048613cb02a0dc4beb3c))
+
+
 ## v0.1.1 (2024-12-27)
 
 ### Bug Fixes
