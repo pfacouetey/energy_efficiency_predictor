@@ -66,7 +66,7 @@ Ensure you have Python 3.12+ installed. Follow these steps to set up the develop
 
     `poetry install --no-root`
 
-Feel free to create your virtual envrionment using your own ways, activate it, install `poetry` in it, then use `poetry` to instqll in it the necessary packages.
+Feel free to create your virtual environment using your own ways, activate it, install `poetry` in it, then use `poetry` to install in it the necessary packages.
 
 With Poetry, your dependencies are locked in the `poetry.lock` file, ensuring consistency across environments.
 Let me know if you'd like me to enrich this README further or include any other project-specific details!
