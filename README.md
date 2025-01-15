@@ -83,6 +83,7 @@ The data folder has been created to track any change on the dataset done by [UC 
 - Enhance preprocessing pipelines to handle outliers detection.
 - Include visualization dashboards for energy efficiency predictions.
 - Add deployment pipelines (e.g., Flask or FastAPI) for serving the final model retained.
+- Take into account the fact that predicting too less or high can generate some costs which we need to minimize.
 - Compare performance with additional machine learning models (e.g., Random Forest, Gradient Boosting), and even test some deep learning models.
 
 ## License
