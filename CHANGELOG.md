@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-01-18)
+
+### Features
+
+- **errors**: Add visualization of prediction errors on test set
+  ([`7e9fc3a`](https://github.com/pfacouetey/energy_efficiency_predictor/commit/7e9fc3a678d72be2cc68338c407cf57bedda9370))
+
+
 ## v0.1.2 (2025-01-04)
 
 ### Bug Fixes
