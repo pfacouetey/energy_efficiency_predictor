@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-01-27)
+
+### Features
+
+- **notebook**: Rewrite the data analysis part
+  ([`8b16b65`](https://github.com/pfacouetey/energy_efficiency_predictor/commit/8b16b65fa5bf139cccd1be760cb6fa1f37123ae7))
+
+
 ## v0.2.0 (2025-01-18)
 
 ### Features
