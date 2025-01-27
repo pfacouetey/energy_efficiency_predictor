@@ -20,7 +20,7 @@ def add_gaussian_noise(
 
     This function takes a DataFrame of features and applies Gaussian noise to each
     value. It generates noise using a normal distribution with a mean of 0.0 and a
-    standard deviation of 1.0. If the input DataFrame is empty, it logs a warning
+    standard deviation of 0.5. If the input DataFrame is empty, it logs a warning
     and returns None. The resulting DataFrame, with added Gaussian noise, is
     returned.
 

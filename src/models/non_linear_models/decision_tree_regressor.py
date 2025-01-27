@@ -12,6 +12,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import cross_validate, KFold
 
 SEED = 123
+N_FOLDS = 5
 DEFAULT_MAX_EVALS = 50
 DECISIONTREE_HYPERPARAMETERS = {
     "criterion": hp.choice("criterion", ["squared_error", "friedman_mse", "absolute_error"]),
@@ -169,7 +170,7 @@ def train_model(
 
         logging.info("Started training of a decision tree...")
         cv = KFold(
-            n_splits=5,
+            n_splits=N_FOLDS,
             random_state=SEED,
             shuffle=True,
         )

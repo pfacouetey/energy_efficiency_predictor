@@ -13,6 +13,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import cross_validate, KFold
 
 SEED = 123
+N_FOLDS = 5
 DEFAULT_MAX_EVALS = 30
 N_COMPONENTS = 0.9
 ELASTICNET_HYPERPARAMETERS = {
@@ -170,7 +171,7 @@ def train_model(
 
         logging.info("Started training of a linear regression model with Ridge and Lasso regularization...")
         cv = KFold(
-            n_splits=5,
+            n_splits=N_FOLDS,
             random_state=SEED,
             shuffle=True,
         )
