@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "energy-efficiency-predictor"
-version = "0.3.0"
+version = "0.3.1"
 description = "A machine learning project focused on predicting heating & cooling loads of buildings simulated by Ecotect."
 authors = ["Prince Foli Acouetey"]
 license = "MIT"

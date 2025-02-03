@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.1 (2025-02-03)
+
+### Bug Fixes
+
+- **notebooks**: Fix visualisations
+  ([`3baafa5`](https://github.com/pfacouetey/energy_efficiency_predictor/commit/3baafa5adc26ff45b2c5d76ae41c1a383aa8a230))
+
+
 ## v0.3.0 (2025-01-27)
 
 ### Features
