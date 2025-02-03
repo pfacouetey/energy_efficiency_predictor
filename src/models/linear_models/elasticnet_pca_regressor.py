@@ -393,6 +393,7 @@ def elasticnet_pca_regressor(
             "r2_score": np.min(
                 r2_score(y_true=targets_df, y_pred=pred_targets_array, multioutput="raw_values")
             ),
+            "test_features": pca_features_df,
         }
         logging.info("Prediction completed successfully.")
         return results
