@@ -11,7 +11,6 @@ from sklearn.model_selection import cross_validate, KFold
 N_COMPONENTS = 0.9
 SEED = 123
 
-np.random.seed(SEED)
 random.seed(SEED)
 
 

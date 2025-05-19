@@ -24,7 +24,6 @@ DECISIONTREE_HYPERPARAMETERS = {
     "ccp_alpha": hp.uniform("ccp_alpha", 0.0, 0.5),
 }
 
-np.random.seed(SEED)
 random.seed(SEED)
 
 

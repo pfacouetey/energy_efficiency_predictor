@@ -21,7 +21,6 @@ ELASTICNET_HYPERPARAMETERS = {
     "l1_ratio": hp.uniform("l1_ratio", 0.001, 1.0),
 }
 
-np.random.seed(SEED)
 random.seed(SEED)
 
 class CustomElasticNet(ElasticNet):
