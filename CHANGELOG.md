@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.2 (2025-05-19)
+
+### Bug Fixes
+
+- **models**: Resolve unnecessary import
+  ([`30f4ca8`](https://github.com/pfacouetey/energy_efficiency_predictor/commit/30f4ca82bce87fe07892fcbac13a3600e2539020))
+
+
 ## v0.3.1 (2025-02-03)
 
 ### Bug Fixes
