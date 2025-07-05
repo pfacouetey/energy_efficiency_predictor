@@ -33,7 +33,7 @@ Tasks include:
 ## Technologies Used
 - Python (3.12.8)
 - Key Libraries:
-    - **scikit-learn**: For building machine learning models and evaluate them.
+    - **scikit-learn, statsmodels**: For building machine learning models and evaluate them.
     - **pandas/numpy**: Data handling and numerical computations.
     - **MLflow**: Experiment tracking and model management.
     - **seaborn/matplotlib**: For visualizing model results.
@@ -72,19 +72,15 @@ With Poetry, your dependencies are locked in the `poetry.lock` file, ensuring co
 Let me know if you'd like me to enrich this README further or include any other project-specific details!
 
 ## How to Run
-Open the `notebooks folder`, and execute the `main_copy.ipynb` notebook cells step by step.
-Don't forget to use the kernel associated to the virtual environment managed by `poetry`.
-
-Trying to run `main.ipynb` file will result in a failure, since you need a `data folder` you can't access.
+Open the `notebooks folder`, and execute the `main.ipynb` notebook cells step by step.
+Don't forget to use the kernel associated with the virtual environment managed by `poetry`.
 
 The data folder has been created to track any change on the dataset done by [UC Irvine Machine learning Repository](https://archive.ics.uci.edu/).
 
 ## Future Improvements
-- Enhance preprocessing pipelines to handle outliers detection.
-- Include visualization dashboards for energy efficiency predictions.
-- Add deployment pipelines (e.g., Flask or FastAPI) for serving the final model retained.
-- Take into account the fact that predicting too less or high can generate some costs which we need to minimize.
-- Compare performance with additional machine learning models (e.g., Random Forest, Gradient Boosting), and even test some deep learning models.
+- Enhance preprocessing pipelines to handle eventual outliers.
+- Add some extra optimization parts for a better prediction. In fact, predicting too low/high is critical for true energy optimization.
+- Try neural networks models.
 
 ## License
 This project is registered under the terms of the MIT license. For any further details, consult the `LICENSE` file.

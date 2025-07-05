@@ -167,3 +167,5 @@ mlartifacts/
 
 # Data folders versioned by dvc
 /data
+
+.vscode/

@@ -3,6 +3,17 @@ import pandas as pd
 
 
 @pytest.fixture()
+def expected_features_names():
+    return [
+        'Relative_Compactness', 'Surface_Area', 'Wall_Area', 'Roof_Area', 
+        'Overall_Height', 'Orientation', 'Glazing_Area', 'Glazing_Area_Distribution'
+    ]
+
+@pytest.fixture()
+def expected_targets_names():
+    return ['Heating_Load', 'Cooling_Load']
+
+@pytest.fixture()
 def expected_features_means_df():
     return pd.DataFrame(
         {

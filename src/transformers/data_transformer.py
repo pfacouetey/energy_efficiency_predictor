@@ -1,132 +1,104 @@
 import random
 import logging
-import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
-SEED = 123
-TEST_SIZE = 0.3
-
-np.random.seed(SEED)
+SEED = 21062025
+TEST_SIZE = 0.2
 random.seed(SEED)
 
 
-def add_gaussian_noise(
-        features_df: pd.DataFrame,
-) -> pd.DataFrame | None:
-    """
-    Adds Gaussian noise to the input DataFrame.
-
-    This function takes a DataFrame of features and applies Gaussian noise to each
-    value. It generates noise using a normal distribution with a mean of 0.0 and a
-    standard deviation of 0.5. If the input DataFrame is empty, it logs a warning
-    and returns None. The resulting DataFrame, with added Gaussian noise, is
-    returned.
-
-    Args:
-        features_df (pd.DataFrame): The input DataFrame containing feature values
-        whose entries will have Gaussian noise applied.
-
-    Returns:
-        pd.DataFrame | None: A DataFrame with Gaussian noise added to its values,
-        or None if the input DataFrame is empty.
-
-    Raises:
-        This function does not explicitly raise any errors, but unexpected issues
-        could arise due to DataFrame processing or noise generation.
-    """
-    if features_df.empty:
-        logging.warning("No features to add Gaussian noise to.")
-        return None
-
-    logging.info("Generating Gaussian noise...")
-    noise_df = pd.DataFrame(
-        data=np.random.normal(
-            loc=0.0,
-            scale=0.5,
-            size=(
-                features_df.shape[0],
-                features_df.shape[1],
-            )
-        ),
-        columns=features_df.columns.tolist(),
-        index=features_df.index,
-    )
-    logging.info("Gaussian noise generation completed successfully.")
-    return features_df + noise_df
-
 def transform_energy_efficiency_dataset(
-        features_df: pd.DataFrame,
-        targets_df: pd.DataFrame,
+    features_df: pd.DataFrame,
+    targets_df: pd.DataFrame,
 ) -> dict[str, dict[str, pd.DataFrame]] | None:
     """
-    Transforms the energy efficiency dataset by splitting into training and test sets,
-    adding Gaussian noise to the training set, and standardizing the features.
+    Splits and standardizes the Energy Efficiency dataset for model training and evaluation.
 
-    This function takes in features and targets DataFrames, splits them into
-    training and test sets, applies Gaussian noise to the training features,
-    and standardizes both the original and noisy datasets. The standardized
-    datasets are returned as a structured dictionary for further processing.
+    This function takes feature and target DataFrames, performs a stratified train-test split,
+    and standardizes features columns using scikit-learn's StandardScaler.
+    The result is a structured dictionary
+    containing both the original and standardized feature sets for training and testing, as well as
+    the corresponding targets.
 
-    Parameters:
-        features_df (pd.DataFrame): DataFrame containing the features of the dataset.
-        targets_df (pd.DataFrame): DataFrame containing the target values of the dataset.
+    Parameters
+    ----------
+    features_df : pd.DataFrame
+        DataFrame containing the feature columns:
+        ['Relative_Compactness', 'Surface_Area', 'Wall_Area', 'Roof_Area',
+         'Overall_Height', 'Orientation', 'Glazing_Area', 'Glazing_Area_Distribution'].
+    targets_df : pd.DataFrame
+        DataFrame containing the target columns:
+        ['Heating_Load', 'Cooling_Load'].
 
-    Returns:
-        dict[str, dict[str, pd.DataFrame]] | None: A dictionary containing the structured
-        data for original and noisy datasets, each with standardized training and testing
-        features and targets. Returns None if any input DataFrame is empty.
+    Returns
+    -------
+    dict[str, dict[str, pd.DataFrame]] or None
+        A nested dictionary with the following structure:
+            {
+                "train": {
+                    "features": {
+                        "original": <pd.DataFrame>,
+                        "scaled": <pd.DataFrame>
+                    },
+                    "targets": <pd.DataFrame>
+                },
+                "test": {
+                    "features": {
+                        "original": <pd.DataFrame>,
+                        "scaled": <pd.DataFrame>
+                    },
+                    "targets": <pd.DataFrame>
+                }
+            }
+        Returns None if either input DataFrame is empty.
 
-    Raises:
-        ValueError: If either `features_df` or `targets_df` is empty.
+    Example
+    -------
+    >> data = transform_energy_efficiency_dataset(features_df, targets_df)
+
+    Notes
+    -----
+    - The function returns None if the input DataFrames are empty.
     """
     if features_df.empty or targets_df.empty:
-        logging.error("At least one of the input dataFrames is empty ...")
+        logging.error("Input DataFrames cannot be empty")
         return None
 
-    logging.info("Splitting data into training, and test sets...")
+    logging.info("Splitting data into training and test sets...")
+
     train_features_df, test_features_df, train_targets_df, test_targets_df = train_test_split(
-            features_df,
-            targets_df,
-            test_size=TEST_SIZE,
-            random_state=123,
-        )
-    logging.info("Data splitting completed successfully.")
+        features_df, targets_df,
+        test_size=TEST_SIZE,
+        random_state=SEED,
+    )
 
-    logging.info("Adding Gaussian noise to training set...")
-    noisy_train_features_df = add_gaussian_noise(features_df=train_features_df)
-    logging.info("Gaussian noise addition completed successfully.")
+    scaler = StandardScaler()
+    scaled_train = scaler.fit_transform(train_features_df)
+    scaled_test = scaler.transform(test_features_df)
 
-    logging.info("Standardizing features...")
-    scaler1, scaler2 = StandardScaler(), StandardScaler()
-    data = {
+    return {
         "train": {
             "features": {
-                "original": pd.DataFrame(
-                    data=scaler1.fit_transform(train_features_df),
-                    columns=train_features_df.columns,
-                ),
-                "noise": pd.DataFrame(
-                    data=scaler2.fit_transform(noisy_train_features_df),
-                    columns=noisy_train_features_df.columns,
-                ),
+                "original": train_features_df,
+                "scaled": pd.DataFrame(
+                    scaled_train,
+                    columns=features_df.columns,
+                    index=train_features_df.index
+                )
             },
-            "targets": train_targets_df,
+            "targets": train_targets_df
         },
         "test": {
             "features": {
-                "original": pd.DataFrame(
-                    data=scaler1.transform(test_features_df),
-                    columns=test_features_df.columns,
-                ),
-                "noise": pd.DataFrame(
-                    data=scaler2.transform(test_features_df),
-                    columns=test_features_df.columns,
-                ),
+                "original": test_features_df,
+                "scaled": pd.DataFrame(
+                    scaled_test,
+                    columns=features_df.columns,
+                    index=test_features_df.index
+                )
             },
-            "targets": test_targets_df,
+            "targets": test_targets_df
         }
     }
-    logging.info("Standardization completed successfully.")
-    return data

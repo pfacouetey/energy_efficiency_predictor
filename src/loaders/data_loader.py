@@ -21,13 +21,16 @@ def load_energy_efficiency_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
           'Glazing_Area_Distribution'.
         - The second DataFrame contains the targets with columns: 'Heating_Load',
           'Cooling_Load'.
+
+    Example
+    --------
+    >> features_df, targets_df = load_energy_efficiency_dataset()
     """
     logging.info("Loading Energy Efficiency dataset...")
-
     energy_efficiency_df = fetch_ucirepo(id=242)
 
     if not energy_efficiency_df.empty:
-        logging.info("Separating covariates from target...")
+        logging.info("Separating predictors from targets...")
         features_df = energy_efficiency_df.data.features
         features_df = features_df.rename(
             columns={
@@ -48,8 +51,7 @@ def load_energy_efficiency_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
                 'Y2': 'Cooling_Load',
             },
         ).map(float)
-        logging.info("Energy Efficiency dataset loaded successfully.")
         return features_df, targets_df
 
-    logging.error("Failed to load Energy Efficiency dataset...")
+    logging.error("Failed to load dataset...")
     return pd.DataFrame(), pd.DataFrame()
